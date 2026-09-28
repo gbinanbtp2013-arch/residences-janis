@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseUrl } from "../../lib/supabase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -78,6 +78,9 @@ export default function AdminLoginPage() {
             {loading ? "Connexion…" : "Se connecter"}
           </button>
         </form>
+        <p style={{ marginTop: 18, fontSize: "0.78rem", color: "var(--ink-soft)" }}>
+          Adresse utilisée par le site : {supabaseUrl || "(aucune)"}
+        </p>
       </div>
     </div>
   );
