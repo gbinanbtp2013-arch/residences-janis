@@ -11,17 +11,28 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const urlConfiguree = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const cleConfiguree = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      setError("Connexion refusée. Vérifiez l'email et le mot de passe.");
-      return;
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        setError(`${error.message} (code ${error.status ?? "?"})`);
+        setLoading(false);
+        return;
+      }
+      router.push("/admin/dashboard");
+    } catch (err) {
+      setError(`Erreur technique : ${err.message}`);
+      setLoading(false);
     }
-    router.push("/admin/dashboard");
   }
 
   return (
@@ -31,6 +42,16 @@ export default function AdminLoginPage() {
         <p style={{ color: "var(--ink-soft)", marginTop: 0, marginBottom: 20 }}>
           Réservé à la gestion des Résidences Janis.
         </p>
+
+        {(!urlConfiguree || !cleConfiguree) && (
+          <p className="error-text">
+            Configuration incomplète :{" "}
+            {!urlConfiguree && "l'adresse Supabase (URL) est absente. "}
+            {!cleConfiguree && "la clé Supabase est absente. "}
+            Vérifiez les variables sur Vercel puis redéployez sans cache.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="email">Email</label>
